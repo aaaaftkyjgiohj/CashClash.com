@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Clash - Construisez votre empire financier!</title>
+    <style>
+        /* Base styles */
+        :root {
+            --primary-bg: linear-gradient(135deg, #1a2a3a, #0d1b2a);
+            --card-bg: #2a3a4a;
+            --highlight-color: #ffd700;
+            --button-primary: #ffd700;
+            --button-shop: #ff7700;
+            --button-boost: #ff4081;
+            --button-vip: #7e57c2;
+            --progress-bar: #ffd700;
+            --income-color: #8df776;
+            --danger-color: #f44336;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--primary-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        /* Header and logo */
+        .logo {
+            margin: 20px 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--highlight-color);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            letter-spacing: 1px;
+        }
+
+        /* Currency display */
+        .currency-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .currency {
+            display: flex;
+            align-items: center;
+        }
+        
+        .currency-icon {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .currency-value {
+            font-weight: bold;
+        }
+        
+        /* Building elements */
+        .building {
+            width: 100%;
+            height: auto;
+            min-height: 120px;
+            margin: 15px 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .building:active {
+            transform: scale(0.98);
+        }
+        
+        .building-info {
+            text-align: left;
+            z-index: 2;
+            flex: 1;
+        }
+        
+        .building-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .building-level {
+            color: var(--highlight-color);
+            margin-bottom: 5px;
+        }
+        
+        .building-income {
+            font-size: 0.9rem;
+            color: var(--income-color);
+        }
+        
+        .upgrade-btn {
+            background: var(--button-primary);
+            color: #1a2a3a;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 2;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .upgrade-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        .upgrade-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 8px;
+            background: var(--progress-bar);
+            width: 0%;
+            transition: width 1s linear;
+        }
+        
+        /* Buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .action-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: none;
+            color: white;
+            cursor: pointer;
+            min-width: 120px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95) translateY(0);
+        }
+        
+        .shop-btn {
+            background: var(--button-shop);
+        }
+        
+        .boost-btn {
+            background: var(--button-boost);
+        }
+        
+        .vip-btn {
+            background: var(--button-vip);
+        }
+        
+        .reset-btn {
+            background: var(--danger-color);
+        }
+        
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.visible {
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: #2a3a4a;
+            width: 85%;
+            max-width: 400px;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.visible .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: var(--danger-color);
+        }
+        
+        /* Shop items */
+        .item-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        
+        .shop-item {
+            background: #3a4a5a;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            width: calc(50% - 8px);
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .shop-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .item-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+            min-height: 40px;
+        }
+        
+        .item-price {
+            color: var(--highlight-color);
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .buy-btn {
+            background: var(--button-primary);
+            color: #1a2a3a;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .buy-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        .buy-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .vip-item {
+            width: 100%;
+        }
+        
+        /* Ad container */
+        .ad-container {
+            width: 100%;
+            height: 120px;
+            background: #3a4a5a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ad-btn {
+            background: var(--button-boost);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .vip-ad-btn {
+            background: var(--button-vip);
+        }
+        
+        .ad-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* Ad modal */
+        #ad-placeholder {
+            width: 100%;
+            height: 200px;
+            background: #3a4a5a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        #ad-timer {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        #ad-skip-btn {
+            width: 100%;
+            background: var(--button-primary);
+            color: #1a2a3a;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+        }
+        
+        #ad-skip-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            max-width: 90%;
+        }
+        
+        .notification.show {
+            opacity: 1;
+        }
+        
+        /* Cookie modal */
+        .cookie-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .cookie-btn {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            width: 48%;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cookie-reject {
+            background: #333;
+            color: white;
+        }
+        
+        .cookie-accept {
+            background: var(--button-primary);
+            color: #1a2a3a;
+        }
+        
+        .cookie-btn:hover {
+            filter: brightness(1.1);
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float-text {
+            position: absolute;
+            font-weight: bold;
+            color: var(--income-color);
+            opacity: 0;
+            transform: translateY(0);
+            pointer-events: none;
+            transition: opacity 0.3s, transform 1s;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .shop-item, .vip-item {
+                width: 100%;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CASH CLASH</div>
+        
+        <div class="currency-container">
+            <div class="currency">
+                <div class="currency-icon">💰</div>
+                <div id="money" class="currency-value">0</div>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">💎</div>
+                <div id="gems" class="currency-value">0</div>
+            </div>
+            <div class="currency">
+                <div class="currency-icon">🏆</div>
+                <div id="prestige" class="currency-value">0</div>
+            </div>
+        </div>
+        
+        <div id="buildings-container">
+            <!-- Les bâtiments seront ajoutés ici dynamiquement -->
+        </div>
+        
+        <div class="button-container">
+            <button id="shop-btn" class="action-btn shop-btn">Boutique</button>
+            <button id="boost-btn" class="action-btn boost-btn">Boosters</button>
+            <button id="vip-btn" class="action-btn vip-btn">VIP</button>
+            <button id="reset-btn" class="action-btn reset-btn">Réinitialiser</button>
+        </div>
+        
+        <div class="ad-container">
+            <button id="watch-ad-btn" class="ad-btn">Regarder une publicité</button>
+        </div>
+        
+        <!-- Modal de la boutique -->
+        <div id="shop-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Boutique</div>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="item-container">
+                    <div class="shop-item">
+                        <div class="item-name">Multiplicateur x2</div>
+                        <div class="item-desc">Double la production de tous les bâtiments</div>
+                        <div class="item-price">100 💎</div>
+                        <button class="buy-btn" data-item="multiplier">Acheter</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">Auto-Clic</div>
+                        <div class="item-desc">Clique automatiquement sur les bâtiments</div>
+                        <div class="item-price">200 💎</div>
+                        <button class="buy-btn" data-item="autoclick">Acheter</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">Argent Bonus</div>
+                        <div class="item-desc">Recevez 1000 💰 immédiatement</div>
+                        <div class="item-price">50 💎</div>
+                        <button class="buy-btn" data-item="money">Acheter</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">Production Rapide</div>
+                        <div class="item-desc">Les bâtiments produisent 50% plus vite</div>
+                        <div class="item-price">150 💎</div>
+                        <button class="buy-btn" data-item="speed">Acheter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal des boosters -->
+        <div id="boost-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Boosters</div>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="item-container">
+                    <div class="shop-item">
+                        <div class="item-name">Boost temporaire</div>
+                        <div class="item-desc">x5 de production pendant 5 minutes</div>
+                        <div class="item-price">75 💎</div>
+                        <button class="buy-btn" data-boost="temp">Activer</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">Production Offline</div>
+                        <div class="item-desc">Continuez à gagner même hors connexion</div>
+                        <div class="item-price">300 💎</div>
+                        <button class="buy-btn" data-boost="offline">Acheter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal VIP -->
+        <div id="vip-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Avantages VIP</div>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="item-container">
+                    <div class="shop-item vip-item">
+                        <div class="item-name">Pack VIP</div>
+                        <div class="item-desc">Débloque des bonus exclusifs et retire les publicités</div>
+                        <div class="item-price">500 💎</div>
+                        <button class="buy-btn" data-vip="pack">Acheter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal des publicités -->
+        <div id="ad-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Regarder une publicité</div>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div id="ad-placeholder">Publicité en cours...</div>
+                <div id="ad-timer">5</div>
+                <button id="ad-skip-btn">Fermer et recevoir votre récompense</button>
+            </div>
+        </div>
+        
+        <!-- Modal des cookies -->
+        <div id="cookie-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Politique de confidentialité</div>
+                </div>
+                <p>Nous utilisons des cookies pour améliorer votre expérience de jeu et sauvegarder votre progression. En acceptant, vous consentez à notre utilisation des cookies.</p>
+                <div class="cookie-buttons">
+                    <button class="cookie-btn cookie-reject">Refuser</button>
+                    <button class="cookie-btn cookie-accept">Accepter</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notification -->
+        <div id="notification" class="notification"></div>
+        
+        <script>
+            // Variables du jeu
+            let money = 0;
+            let gems = 0;
+            let prestige = 0;
+            let multiplier = 1;
+            let speedBoost = 1;
+            
+            // Définition des bâtiments
+            const buildings = [
+                { id: 'lemonade', name: 'Stand de Limonade', baseCost: 10, baseIncome: 1, count: 0, level: 0 },
+                { id: 'bakery', name: 'Boulangerie', baseCost: 100, baseIncome: 5, count: 0, level: 0 },
+                { id: 'restaurant', name: 'Restaurant', baseCost: 1000, baseIncome: 25, count: 0, level: 0 },
+                { id: 'hotel', name: 'Hôtel', baseCost: 10000, baseIncome: 100, count: 0, level: 0 },
+                { id: 'bank', name: 'Banque', baseCost: 100000, baseIncome: 500, count: 0, level: 0 }
+            ];
+            
+            // Création des bâtiments
+            function initBuildings() {
+                const container = document.getElementById('buildings-container');
+                container.innerHTML = '';
+                
+                buildings.forEach(building => {
+                    const buildingElem = createBuildingElement(building);
+                    container.appendChild(buildingElem);
+                    startProduction(building.id);
+                });
+            }
+            
+            // Créer un élément de bâtiment
+            function createBuildingElement(building) {
+                const div = document.createElement('div');
+                div.className = 'building';
+                div.id = building.id;
+                div.innerHTML = `
+                    <div class="building-info">
+                        <div class="building-name">${building.name}</div>
+                        <div class="building-level">Niveau ${building.level}</div>
+                        <div class="building-income">${(building.baseIncome * (building.level + 1) * multiplier).toFixed(1)} 💰/s</div>
+                    </div>
+                    <button class="upgrade-btn" data-building="${building.id}">Améliorer (${building.baseCost * Math.pow(1.5, building.level)} 💰)</button>
+                    <div class="progress-bar"></div>
+                `;
+                
+                // Ajouter l'écouteur d'événements pour l'amélioration
+                div.querySelector('.upgrade-btn').addEventListener('click', () => upgradeBuilding(building.id));
+                
+                return div;
+            }
+            
+            // Mettre à jour l'affichage
+            function updateDisplay() {
+                document.getElementById('money').textContent = formatNumber(money);
+                document.getElementById('gems').textContent = formatNumber(gems);
+                document.getElementById('prestige').textContent = formatNumber(prestige);
+            }
+            
+            // Démarrer la production pour un bâtiment
+            function startProduction(buildingId) {
+                const building = buildings.find(b => b.id === buildingId);
+                const progressBar = document.querySelector(`#${buildingId} .progress-bar`);
+                
+                if (building.level === 0) return;
+                
+                let progress = 0;
+                const interval = 50; // Mise à jour toutes les 50ms
+                const duration = 5000 / speedBoost; // 5 secondes par défaut, réduit avec le boost de vitesse
+                
+                setInterval(() => {
+                    progress += interval;
+                    const percentage = Math.min(100, (progress / duration) * 100);
+                    progressBar.style.width = `${percentage}%`;
+                    
+                    if (progress >= duration) {
+                        progress = 0;
+                        const income = building.baseIncome * building.level * multiplier;
+                        money += income;
+                        updateDisplay();
+                        
+                        // Animation de gain
+                        const buildingElem = document.getElementById(buildingId);
+                        const floatText = document.createElement('div');
+                        floatText.className = 'float-text';
+                        floatText.textContent = `+${formatNumber(income)} 💰`;
+                        floatText.style.left = `${Math.random() * 50 + 25}%`;
+                        floatText.style.top = `${Math.random() * 30 + 35}%`;
+                        buildingElem.appendChild(floatText);
+                        
+                        setTimeout(() => {
+                            floatText.style.opacity = '1';
+                            floatText.style.transform = 'translateY(-50px)';
+                            
+                            setTimeout(() => {
+                                floatText.style.opacity = '0';
+                                setTimeout(() => floatText.remove(), 300);
+                            }, 700);
+                        }, 10);
+                    }
+                }, interval);
+            }
+            
+            // Améliorer un bâtiment
+            function upgradeBuilding(buildingId) {
+                const building = buildings.find(b => b.id === buildingId);
+                const cost = building.baseCost * Math.pow(1.5, building.level);
+                
+                if (money >= cost) {
+                    money -= cost;
+                    building.level++;
+                    
+                    const buildingElem = document.getElementById(buildingId);
+                    buildingElem.querySelector('.building-level').textContent = `Niveau ${building.level}`;
+                    buildingElem.querySelector('.building-income').textContent = `${(building.baseIncome * building.level * multiplier).toFixed(1)} 💰/s`;
+                    
+                    const button = buildingElem.querySelector('.upgrade-btn');
+                    button.textContent = `Améliorer (${formatNumber(building.baseCost * Math.pow(1.5, building.level))} 💰)`;
+                    
+                    updateDisplay();
+                    
+                    if (building.level === 1) {
+                        startProduction(buildingId);
+                    }
+                    
+                    showNotification(`${building.name} amélioré au niveau ${building.level}!`);
+                } else {
+                    showNotification("Pas assez d'argent pour améliorer!");
+                }
+            }
+            
+            // Formatage des nombres
+            function formatNumber(num) {
+                if (num < 1000) return num.toFixed(0);
+                if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
+                if (num < 1000000000) return (num / 1000000).toFixed(1) + 'M';
+                return (num / 1000000000).toFixed(1) + 'B';
+            }
+            
+            // Afficher une notification
+            function showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Modal handling
+            const modals = ['shop-modal', 'boost-modal', 'vip-modal', 'ad-modal', 'cookie-modal'];
+            
+            function openModal(modalId) {
+                modals.forEach(id => {
+                    document.getElementById(id).style.display = 'none';
+                });
+                const modal = document.getElementById(modalId);
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('visible');
+                }, 10);
+            }
+            
+            function closeAllModals() {
+                modals.forEach(id => {
+                    const modal = document.getElementById(id);
+                    modal.classList.remove('visible');
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                    }, 300);
+                });
+            }
+            
+            // Événements pour ouvrir les modals
+            document.getElementById('shop-btn').addEventListener('click', () => openModal('shop-modal'));
+            document.getElementById('boost-btn').addEventListener('click', () => openModal('boost-modal'));
+            document.getElementById('vip-btn').addEventListener('click', () => openModal('vip-modal'));
+            document.getElementById('watch-ad-btn').addEventListener('click', () => openModal('ad-modal'));
+            
+            // Fermer les modals avec les boutons de fermeture
+            document.querySelectorAll('.close-btn').forEach(btn => {
+                btn.addEventListener('click', closeAllModals);
+            });
+            
+            // Fermer les modals en cliquant en dehors
+            modals.forEach(id => {
+                document.getElementById(id).addEventListener('click', (e) => {
+                    if (e.target === document.getElementById(id)) {
+                        closeAllModals();
+                    }
+                });
+            });
+            
+            // Gérer la publicité
+            let adTimer = 5;
+            document.getElementById('watch-ad-btn').addEventListener('click', () => {
+                openModal('ad-modal');
+                adTimer = 5;
+                document.getElementById('ad-timer').textContent = adTimer;
+                document.getElementById('ad-skip-btn').style.display = 'none';
+                
+                const interval = setInterval(() => {
+                    adTimer--;
+                    document.getElementById('ad-timer').textContent = adTimer;
+                    
+                    if (adTimer <= 0) {
+                        clearInterval(interval);
+                        document.getElementById('ad-skip-btn').style.display = 'block';
+                    }
+                }, 1000);
+            });
+            
+            document.getElementById('ad-skip-btn').addEventListener('click', () => {
+                closeAllModals();
+                gems += 10;
+                updateDisplay();
+                showNotification('Vous avez reçu 10 💎!');
+            });
+            
+            // Initialisation
+    window.onload = function() {
+        initBuildings();
+        updateDisplay();
+        openModal('cookie-modal');
+    };
+    
+    // Gérer les boutons de cookie
+    document.querySelector('.cookie-accept').addEventListener('click', () => {
+        closeAllModals();
+        showNotification('Préférences de cookies sauvegardées');
+    });
+    
+    document.querySelector('.cookie-reject').addEventListener('click', () => {
+        closeAllModals();
+        showNotification('Vous avez refusé les cookies');
+    });
+    
+    // Bouton de réinitialisation
+    document.getElementById('reset-btn').addEventListener('click', () => {
+        if (confirm('Êtes-vous sûr de vouloir réinitialiser votre progression?')) {
+            prestige += Math.floor(Math.sqrt(money / 1000));
+            money = 0;
+            gems = 0;
+            multiplier = 1 + (prestige * 0.1);
+            speedBoost = 1;
+            
+            buildings.forEach(building => {
+                building.level = 0;
+                building.count = 0;
+            });
+            
+            initBuildings();
+            updateDisplay();
+            showNotification('Progression réinitialisée! Points de prestige: ' + prestige);
+        }
+    });
+    
+    // Achats dans la boutique
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = btn.getAttribute('data-item');
+            const boost = btn.getAttribute('data-boost');
+            const vip = btn.getAttribute('data-vip');
+            
+            if (item) {
+                handleItemPurchase(item);
+            } else if (boost) {
+                handleBoostPurchase(boost);
+            } else if (vip) {
+                handleVipPurchase(vip);
+            }
+        });
+    });
+    
+    function handleItemPurchase(item) {
+        let cost = 0;
+        let message = '';
+        
+        switch (item) {
+            case 'multiplier':
+                cost = 100;
+                if (gems >= cost) {
+                    multiplier *= 2;
+                    message = 'Production x2 activée!';
+                    updateBuildingsDisplay();
+                }
+                break;
+            case 'autoclick':
+                cost = 200;
+                if (gems >= cost) {
+                    setInterval(() => {
+                        buildings.forEach(building => {
+                            if (building.level > 0) {
+                                money += building.baseIncome * building.level * multiplier * 0.1;
+                            }
+                        });
+                        updateDisplay();
+                    }, 1000);
+                    message = 'Auto-Clic activé!';
+                }
+                break;
+            case 'money':
+                cost = 50;
+                if (gems >= cost) {
+                    money += 1000;
+                    message = 'Vous avez reçu 1000 💰!';
+                }
+                break;
+            case 'speed':
+                cost = 150;
+                if (gems >= cost) {
+                    speedBoost = 1.5;
+                    message = 'Production accélérée activée!';
+                }
+                break;
+        }
+        
+        if (message) {
+            gems -= cost;
+            updateDisplay();
+            showNotification(message);
+            closeAllModals();
+        } else {
+            showNotification('Pas assez de gemmes!');
+        }
+    }
+    
+    function handleBoostPurchase(boost) {
+        switch (boost) {
+            case 'temp':
+                if (gems >= 75) {
+                    gems -= 75;
+                    const oldMultiplier = multiplier;
+                    multiplier *= 5;
+                    updateBuildingsDisplay();
+                    showNotification('Boost x5 activé pour 5 minutes!');
+                    
+                    setTimeout(() => {
+                        multiplier = oldMultiplier;
+                        updateBuildingsDisplay();
+                        showNotification('Le boost x5 est terminé');
+                    }, 5 * 60 * 1000);
+                } else {
+                    showNotification('Pas assez de gemmes!');
+                }
+                break;
+            case 'offline':
+                if (gems >= 300) {
+                    gems -= 300;
+                    // Logique pour la production offline serait implémentée ici
+                    showNotification('Production offline activée!');
+                } else {
+                    showNotification('Pas assez de gemmes!');
+                }
+                break;
+        }
+        updateDisplay();
+    }
+    
+    function handleVipPurchase(vip) {
+        if (vip === 'pack' && gems >= 500) {
+            gems -= 500;
+            // Implémenter les avantages VIP
+            document.querySelector('.ad-container').style.display = 'none';
+            multiplier *= 2;
+            updateBuildingsDisplay();
+            showNotification('Pack VIP activé! Publicités supprimées et production x2');
+            updateDisplay();
+            closeAllModals();
+        } else {
+            showNotification('Pas assez de gemmes!');
+        }
+    }
+    
+    function updateBuildingsDisplay() {
+        buildings.forEach(building => {
+            if (building.level > 0) {
+                const elem = document.getElementById(building.id);
+                elem.querySelector('.building-income').textContent = 
+                    `${(building.baseIncome * building.level * multiplier).toFixed(1)} 💰/s`;
+            }
+        });
+    }
+</script>
+</body>
+</html>
